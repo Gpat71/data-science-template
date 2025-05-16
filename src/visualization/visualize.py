@@ -190,4 +190,5 @@ for label in labels:
                 shadow=True,
             )
             ax[1].set_xlabel("samples")
+            plt.savefig(f"../../reports/figures/{label.title()} ({participant}).png")
             plt.show()

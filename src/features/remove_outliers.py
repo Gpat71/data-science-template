@@ -9,7 +9,7 @@ from sklearn.neighbors import LocalOutlierFactor  # pip install scikit-learn
 # Load data
 # --------------------------------------------------------------
 
-df = pd.read_pickle("../../data/interim/01_data_resampled.pkl")
+df = pd.read_pickle("../../data/interim/01_data_processed.pkl")
 
 # --------------------------------------------------------------
 # Plotting outliers
@@ -237,7 +237,9 @@ def mark_outliers_lof(dataset, columns, n=20):
 
 dataset, outliers, X_scores = mark_outliers_lof(df, outlier_columns)
 for col in outlier_columns:
-    plot_binary_outliers(dataset=dataset, col=col, outlier_col="outlier_lof", reset_index=True)
+    plot_binary_outliers(
+        dataset=dataset, col=col, outlier_col="outlier_lof", reset_index=True
+    )
 
 # --------------------------------------------------------------
 # Check outliers grouped by label
@@ -246,46 +248,45 @@ for col in outlier_columns:
 label = "bench"
 for col in outlier_columns:
     dataset = mark_outliers_iqr(df[df["label"] == label], col)
-    plot_binary_outliers(dataset, col,col + "_outlier",reset_index=True)
-    
+    plot_binary_outliers(dataset, col, col + "_outlier", reset_index=True)
+
 for col in outlier_columns:
     dataset = mark_outliers_chauvenet(df[df["label"] == label], col)
-    plot_binary_outliers(dataset, col,col + "_outlier",reset_index=True)
-    
+    plot_binary_outliers(dataset, col, col + "_outlier", reset_index=True)
 
-    
 
 # --------------------------------------------------------------
 # Choose method and deal with outliers
 # --------------------------------------------------------------
 
 # Test on single column
-col= "gyr_z"
+col = "gyr_z"
 dataset = mark_outliers_chauvenet(df, col=col)
 dataset[dataset["gyr_z_outlier"]]
 
 dataset.loc[dataset["gyr_z_outlier"], "gyr_z"] = np.nan
-        
 
 
 # Create a loop
 
-    outliers_removed_df = df.copy()
-    for col in outlier_columns:
-        for label in df["label"].unique():
-            dataset = mark_outliers_chauvenet(df[df["label"] == label], col)
-            # Check if outliers are present
-            dataset.loc[dataset[col + "_outlier"], col] = np.nan
-            # Remove outliers
-            outliers_removed_df.loc[(outliers_removed_df["label"] == label),col]=dataset[col] 
-            
-            n_outliers = len(dataset)-len(dataset[col].dropna())
-            print(f"Removed {n_outliers} from {col} for {label}")
-        
-        
+outliers_removed_df = df.copy()
+
+for col in outlier_columns:
+    for label in df["label"].unique():
+        dataset = mark_outliers_chauvenet(df[df["label"] == label], col)
+# Check if outliers are present
+dataset.loc[dataset[col + "_outlier"], col] = np.nan
+# Remove outliers
+outliers_removed_df.loc[(outliers_removed_df["label"] == label), col] = dataset[col]
+
+n_outliers = len(dataset) - len(dataset[col].dropna())
+print(f"Removed {n_outliers} from {col} for {label}")
+
 
 # --------------------------------------------------------------
 # Export new dataframe
 # --------------------------------------------------------------
 
-outliers_removed_df.to_pickle("../../data/interim/02_data_outliers_removed_chauvenet.pkl")
+outliers_removed_df.to_pickle(
+    "../../data/interim/02_data_outliers_removed_chauvenet.pkl"
+)

@@ -8,7 +8,7 @@ from IPython.display import display
 # Load data
 # --------------------------------------------------------------
 
-df = pd.read_pickle("../../data/interim/01_data_resampled.pkl")
+df = pd.read_pickle("../../data/interim/01_data_processed.pkl")
 
 # --------------------------------------------------------------
 # Plot single columns
